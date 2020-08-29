@@ -4,7 +4,10 @@ import org.jasig.ssp.transferobject.reports.JournalCaseNotesStudentReportTO;
 
 import java.util.Comparator;
 
-public class JournalCaseNotesStudentReportSorter implements Comparator<JournalCaseNotesStudentReportTO> {
+/**
+ * Contagem de pontos para a classe extraída durante refatoração: 6
+ */
+class JournalCaseNotesStudentReportSorter implements Comparator<JournalCaseNotesStudentReportTO> {
 
     @Override           //1
     public int compare(JournalCaseNotesStudentReportTO o1, JournalCaseNotesStudentReportTO o2) {

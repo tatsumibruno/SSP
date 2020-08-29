@@ -18,23 +18,15 @@
  */
 package org.jasig.ssp.service.impl;
 
-import org.apache.commons.lang.StringUtils;
 import org.jasig.ssp.dao.JournalEntryDao;
-import org.jasig.ssp.dao.PersonDao;
 import org.jasig.ssp.model.JournalEntry;
 import org.jasig.ssp.model.JournalEntryDetail;
-import org.jasig.ssp.model.ObjectStatus;
 import org.jasig.ssp.model.Person;
 import org.jasig.ssp.service.AbstractRestrictedPersonAssocAuditableService;
 import org.jasig.ssp.service.JournalEntryService;
 import org.jasig.ssp.service.ObjectNotFoundException;
 import org.jasig.ssp.service.PersonProgramStatusService;
-import org.jasig.ssp.transferobject.reports.BaseStudentReportTO;
-import org.jasig.ssp.transferobject.reports.EntityCountByCoachSearchForm;
-import org.jasig.ssp.transferobject.reports.EntityStudentCountByCoachTO;
-import org.jasig.ssp.transferobject.reports.JournalCaseNotesStudentReportTO;
-import org.jasig.ssp.transferobject.reports.JournalStepSearchFormTO;
-import org.jasig.ssp.transferobject.reports.JournalStepStudentReportTO;
+import org.jasig.ssp.transferobject.reports.*;
 import org.jasig.ssp.util.sort.PagingWrapper;
 import org.jasig.ssp.util.sort.SortingAndPaging;
 import org.jasig.ssp.web.api.validation.ValidationException;
@@ -42,13 +34,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
 
 @Service
 @Transactional
 /**
  * Contagem de pontos inicial: 23 pontos
  * Após refac 1: 18 pontos
+ * Após refac 2: 11 pontos
  */
 public class JournalEntryServiceImpl
 		extends AbstractRestrictedPersonAssocAuditableService<JournalEntry>
@@ -59,9 +54,9 @@ public class JournalEntryServiceImpl
 
 	@Autowired//1
 	private transient PersonProgramStatusService personProgramStatusService;
-	
+
 	@Autowired//1
-	private transient PersonDao personDao;
+	private SearchPersonWithJournalEntries searchPersonWithJournalEntries;
 
 	@Override
 	protected JournalEntryDao getDao() {
@@ -125,46 +120,10 @@ public class JournalEntryServiceImpl
 		return dao.getJournalStepStudentReportTOsFromCriteria(personSearchForm,  
 				sAndP);
 	}
-	
- 	@Override	//1
- 	public List<JournalCaseNotesStudentReportTO> getJournalCaseNoteStudentReportTOsFromCriteria(JournalStepSearchFormTO personSearchForm, SortingAndPaging sAndP) throws ObjectNotFoundException{
- 		 final List<JournalCaseNotesStudentReportTO> personsWithJournalEntries = dao.getJournalCaseNoteStudentReportTOsFromCriteria(personSearchForm, sAndP);
- 		 final Map<String, JournalCaseNotesStudentReportTO> map = new HashMap<String, JournalCaseNotesStudentReportTO>();
 
- 		 for(JournalCaseNotesStudentReportTO entry:personsWithJournalEntries){
- 			 map.put(entry.getSchoolId(), entry);
- 		 }
-
- 		 final SortingAndPaging personSAndP = SortingAndPaging.createForSingleSortAll(ObjectStatus.ACTIVE, "lastName", "DESC") ;
- 		 					//1
- 		 final PagingWrapper<BaseStudentReportTO> persons = personDao.getStudentReportTOs(personSearchForm, personSAndP);
-
- 		 //1
- 		 if (persons == null) {
- 			 return personsWithJournalEntries;
- 		 }
-
- 		 //1
- 		 for (BaseStudentReportTO person:persons) {
- 		 	 //1
-			 if (!map.containsKey(person.getSchoolId()) && StringUtils.isNotBlank(person.getCoachSchoolId())) {
-				 boolean addStudent = true;
-				 //1
-				 if (personSearchForm.getJournalSourceIds()!=null) {
-				 	//1
-					if (getDao().getJournalCountForPersonForJournalSourceIds(person.getId(), personSearchForm.getJournalSourceIds()) == 0) {
-						addStudent = false;
-					}
-				 }
-				 //1
-			 	 if (addStudent) {
-					 final JournalCaseNotesStudentReportTO entry = new JournalCaseNotesStudentReportTO(person);
-					 personsWithJournalEntries.add(entry);
-					 map.put(entry.getSchoolId(), entry);
-				 }
- 			}
- 		 }
- 		 personsWithJournalEntries.sort(new JournalCaseNotesStudentReportSorter());
- 		 return personsWithJournalEntries;
- 	}
+	@Override//1
+	public List<JournalCaseNotesStudentReportTO> getJournalCaseNoteStudentReportTOsFromCriteria(JournalStepSearchFormTO personSearchForm,
+																								SortingAndPaging sAndP) throws ObjectNotFoundException {
+		return searchPersonWithJournalEntries.find(personSearchForm, sAndP);
+	}
 }
