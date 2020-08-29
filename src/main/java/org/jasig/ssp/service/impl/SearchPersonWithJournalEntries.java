@@ -27,7 +27,7 @@ class SearchPersonWithJournalEntries {
     @Autowired//1
     private PersonDao personDao;
     @Autowired//1
-    private PersonWithJournalEntriesByCoachSchool personWithJournalEntriesByCoachSchool;
+    private PersonWithJournalEntriesBySchool personWithJournalEntriesBySchool;
 
     List<JournalCaseNotesStudentReportTO> find(JournalStepSearchFormTO personSearchForm, SortingAndPaging sAndP) throws ObjectNotFoundException {
         final List<JournalCaseNotesStudentReportTO> personsWithJournalEntries = journalEntryDao.getJournalCaseNoteStudentReportTOsFromCriteria(personSearchForm, sAndP);
@@ -47,7 +47,7 @@ class SearchPersonWithJournalEntries {
             return personsWithJournalEntries;
         }
 
-        List<JournalCaseNotesStudentReportTO> journalEntriesByCoachSchool = personWithJournalEntriesByCoachSchool.find(personSearchForm, personsWithJournalBySchoolId, persons);
+        List<JournalCaseNotesStudentReportTO> journalEntriesByCoachSchool = personWithJournalEntriesBySchool.find(personSearchForm, personsWithJournalBySchoolId, persons);
         personsWithJournalEntries.addAll(journalEntriesByCoachSchool);
 
         //1

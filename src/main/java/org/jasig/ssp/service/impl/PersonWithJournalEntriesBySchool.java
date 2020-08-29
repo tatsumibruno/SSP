@@ -17,7 +17,7 @@ import java.util.Map;
  * Contagem de pontos para a classe extraída durante refatoração: 7
  */
 @Component
-class PersonWithJournalEntriesByCoachSchool {
+class PersonWithJournalEntriesBySchool {
 
     @Autowired//1
     private JournalEntryDao journalEntryDao;
