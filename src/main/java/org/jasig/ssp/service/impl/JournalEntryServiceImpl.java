@@ -52,17 +52,18 @@ import java.util.UUID;
 
 @Service
 @Transactional
+//Contagem de pontos inicial: 23
 public class JournalEntryServiceImpl
 		extends AbstractRestrictedPersonAssocAuditableService<JournalEntry>
 		implements JournalEntryService {
 
-	@Autowired
+	@Autowired//1
 	private transient JournalEntryDao dao;
 
-	@Autowired
+	@Autowired//1
 	private transient PersonProgramStatusService personProgramStatusService;
 	
-	@Autowired
+	@Autowired//1
 	private transient PersonDao personDao;
 
 	@Override
@@ -70,7 +71,7 @@ public class JournalEntryServiceImpl
 		return dao;
 	}
 
-	@Override
+	@Override//1
 	public JournalEntry create(final JournalEntry obj)
 			throws ObjectNotFoundException, ValidationException {
 		final JournalEntry journalEntry = getDao().save(obj);
@@ -89,8 +90,11 @@ public class JournalEntryServiceImpl
 	private void checkForTransition(final JournalEntry journalEntry)
 			throws ObjectNotFoundException, ValidationException {
 		// search for a JournalStep that indicates a transition
+					//1
+		//1
 		for (final JournalEntryDetail detail : journalEntry
 				.getJournalEntryDetails()) {
+			//1
 			if (detail.getJournalStepJournalStepDetail().getJournalStep()
 					.isUsedForTransition()) {
 				// is used for transition, so attempt to set program status
@@ -103,7 +107,7 @@ public class JournalEntryServiceImpl
 		}
 	}
 	
-	@Override
+	@Override					 //1
 	public Long getCountForCoach(Person coach, Date createDateFrom, Date createDateTo, List<UUID> studentTypeIds){
 		return dao.getJournalCountForCoach(coach, createDateFrom, createDateTo, studentTypeIds);
 	}
@@ -113,19 +117,19 @@ public class JournalEntryServiceImpl
 		return dao.getStudentJournalCountForCoach(coach, createDateFrom, createDateTo, studentTypeIds);
 	}
 	
-	@Override
+	@Override//1
 	public PagingWrapper<EntityStudentCountByCoachTO> getStudentJournalCountForCoaches(EntityCountByCoachSearchForm form){
 		return dao.getStudentJournalCountForCoaches(form);
 	}
 	
-	@Override
+	@Override//1
 	public PagingWrapper<JournalStepStudentReportTO> getJournalStepStudentReportTOsFromCriteria(JournalStepSearchFormTO personSearchForm,  
 			SortingAndPaging sAndP){
 		return dao.getJournalStepStudentReportTOsFromCriteria(personSearchForm,  
 				sAndP);
 	}
 	
- 	@Override
+ 	@Override	//1
  	public List<JournalCaseNotesStudentReportTO> getJournalCaseNoteStudentReportTOsFromCriteria(JournalStepSearchFormTO personSearchForm, SortingAndPaging sAndP) throws ObjectNotFoundException{
  		 final List<JournalCaseNotesStudentReportTO> personsWithJournalEntries = dao.getJournalCaseNoteStudentReportTOsFromCriteria(personSearchForm, sAndP);
  		 final Map<String, JournalCaseNotesStudentReportTO> map = new HashMap<String, JournalCaseNotesStudentReportTO>();
@@ -135,20 +139,27 @@ public class JournalEntryServiceImpl
  		 }
 
  		 final SortingAndPaging personSAndP = SortingAndPaging.createForSingleSortAll(ObjectStatus.ACTIVE, "lastName", "DESC") ;
+ 		 					//1
  		 final PagingWrapper<BaseStudentReportTO> persons = personDao.getStudentReportTOs(personSearchForm, personSAndP);
- 		
+
+ 		 //1
  		 if (persons == null) {
  			 return personsWithJournalEntries;
  		 }
 
+ 		 //1
  		 for (BaseStudentReportTO person:persons) {
+ 		 	 //1
 			 if (!map.containsKey(person.getSchoolId()) && StringUtils.isNotBlank(person.getCoachSchoolId())) {
 				 boolean addStudent = true;
+				 //1
 				 if (personSearchForm.getJournalSourceIds()!=null) {
+				 	//1
 					if (getDao().getJournalCountForPersonForJournalSourceIds(person.getId(), personSearchForm.getJournalSourceIds()) == 0) {
 						addStudent = false;
 					}
 				 }
+				 //1
 			 	 if (addStudent) {
 					 final JournalCaseNotesStudentReportTO entry = new JournalCaseNotesStudentReportTO(person);
 					 personsWithJournalEntries.add(entry);
@@ -167,21 +178,26 @@ public class JournalEntryServiceImpl
 	        	
 	        	int value = p1.getLastName().compareToIgnoreCase(
 	     	                    p2.getLastName());
-	        	if(value != 0)
-	        		return value;
-	        	
-	        	value = p1.getFirstName().compareToIgnoreCase(
- 	                    p2.getFirstName());
-		       if(value != 0)
-        		 return value;
-		       if(p1.getMiddleName() == null && p2.getMiddleName() == null)
-		    	   return 0;
-		       if(p1.getMiddleName() == null)
-		    	   return -1;
-		       if(p2.getMiddleName() == null)
-		    	   return 1;
-		       return p1.getMiddleName().compareToIgnoreCase(
-	                    p2.getMiddleName());
+				//1
+				if (value != 0)
+					return value;
+
+				value = p1.getFirstName().compareToIgnoreCase(
+						p2.getFirstName());
+				//1
+				if (value != 0)
+					return value;
+				//1
+				if (p1.getMiddleName() == null && p2.getMiddleName() == null)
+					return 0;
+				//1
+				if (p1.getMiddleName() == null)
+					return -1;
+				//1
+				if (p2.getMiddleName() == null)
+					return 1;
+				return p1.getMiddleName().compareToIgnoreCase(
+						p2.getMiddleName());
 	        }
 	    });
 	}
