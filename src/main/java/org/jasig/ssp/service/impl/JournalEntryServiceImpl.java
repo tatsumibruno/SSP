@@ -42,17 +42,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @Transactional
-//Contagem de pontos inicial: 23
+/**
+ * Contagem de pontos inicial: 23 pontos
+ * Após refac 1: 18 pontos
+ */
 public class JournalEntryServiceImpl
 		extends AbstractRestrictedPersonAssocAuditableService<JournalEntry>
 		implements JournalEntryService {
@@ -167,39 +164,7 @@ public class JournalEntryServiceImpl
 				 }
  			}
  		 }
-		 sortByStudentName(personsWithJournalEntries);
-
+ 		 personsWithJournalEntries.sort(new JournalCaseNotesStudentReportSorter());
  		 return personsWithJournalEntries;
  	}
- 		 
-	private static void sortByStudentName(List<JournalCaseNotesStudentReportTO> toSort) {
-		Collections.sort(toSort,  new Comparator<JournalCaseNotesStudentReportTO>() {
-	        public int compare(JournalCaseNotesStudentReportTO p1, JournalCaseNotesStudentReportTO p2) {
-	        	
-	        	int value = p1.getLastName().compareToIgnoreCase(
-	     	                    p2.getLastName());
-				//1
-				if (value != 0)
-					return value;
-
-				value = p1.getFirstName().compareToIgnoreCase(
-						p2.getFirstName());
-				//1
-				if (value != 0)
-					return value;
-				//1
-				if (p1.getMiddleName() == null && p2.getMiddleName() == null)
-					return 0;
-				//1
-				if (p1.getMiddleName() == null)
-					return -1;
-				//1
-				if (p2.getMiddleName() == null)
-					return 1;
-				return p1.getMiddleName().compareToIgnoreCase(
-						p2.getMiddleName());
-	        }
-	    });
-	}
-
 }
